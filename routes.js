@@ -19,7 +19,7 @@ const requestHandler = (req, res) =>{
             body.push(chunk);
         })
         return req.on('end',() => {
-            console.log('step1111111111111');
+            console.log('step 1');
             
             const parseBody = Buffer.concat(body).toString();
             const rawMessage = parseBody.split('=')[1];
@@ -32,7 +32,7 @@ const requestHandler = (req, res) =>{
             });
         })
     }
-    console.log('step222222222');
+    console.log('step 2');
     res.setHeader('Content-Type','text/html');
     res.write('<html>');
     res.write('<head><title>Hello node.js</title></head>');

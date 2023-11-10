@@ -14,7 +14,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/admin', adminRoutes.router);
-app.use(shopRoutes);
+app.use(shopRoutes.router);
 
 app.use(errorController.get404);
 

@@ -28,7 +28,7 @@
                                 <a href="/product/<%= product.id %>" class="btn" style="text-decoration: none;padding: 4px;">Details</a>
                             </div>
 
-                            <form action="/cart" method="POST">
+                            <form action="/store-cart" method="POST">
                                 <input type="hidden" name="productId" value="<%= product.id %>">
                                 <button type="submit" class="btn" style="padding: 4px; margin-top: -4px">Add to Cart</a>
                             </form>

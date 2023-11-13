@@ -27,10 +27,11 @@
                             </div>
                             <div class="card__actions" style="display: flex; justify-content: center;">
                                 <div>
-                                    <a href="/admin/edit-product" class="btn" style="text-decoration: none;padding: 4px;">Edit</a>
+                                    <a href="/admin/edit-product/<%= product.id%>?edit=true" class="btn" style="text-decoration: none;padding: 4px;">Edit</a>
                                 </div>
                                 
                                 <form action="/admin/delete-product" method="POST" style="margin-top: -4px;">
+                                    <input type="hidden" name="productId" value="<%= product.id%>"/>
                                     <button type="submit" class="btn" style="padding: 4px;">Delete</a>
                                 </form>
                             </div>

@@ -13,7 +13,9 @@ router.get('/products', productController.index);
 router.get('/product/:productId', productController.show);
 
 router.get('/cart', cartController.index);
-router.post('/cart', cartController.store);
+router.post('/store-cart', cartController.store);
+router.post('/delete-cart', cartController.destroy);
+
 
 router.get('/checkout', checkoutController.index);
 router.get('/orders', orderController.index);

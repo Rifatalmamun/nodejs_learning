@@ -6,6 +6,31 @@
     <%- include('../../includes/navigation.ejs') %>
 
     <main>
-        <h1>Cart!</h1>
+        <h1>Cart product list</h1>
+
+        <div style="margin-top: 50px;">
+            <% if (products?.length > 0) { %>
+                <ul>
+                    <% for (let product of products) { %>
+                        <li>
+                            <div style="display: flex; gap: 20px; margin-bottom: 10px;">
+                                <div style="width: 300px;">
+                                    <%= product.productData.title%> (<%= product.quantity%>)
+                                </div>
+                                <div>
+                                    <form action="/delete-cart" method="POST">
+                                        <input type="hidden" name="productId" value="<%= product.productData.id %>"/>
+                                        <button type="submit" class="btn">Delete</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </li>
+                    <% } %>
+                </ul>
+            <% } else { %>
+                <h4>No products in cart!</h4>
+            <% } %>
+        </div>
+
     </main>
 <%- include('../../includes/end.ejs') %>

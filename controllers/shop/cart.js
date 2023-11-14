@@ -1,25 +1,12 @@
-const Product = require('../../models/product');
+const Product = require('../../models/Product');
 const Cart = require('../../models/cart');
 
 const index = (req, res, next) => {
-    Cart.fetchAll((cart)=>{
-      Product.fetchAll((products)=>{
-        const cartProducts = [];
-        
-        for(product of products){
-          const cartProductData = cart.products.find(cp => cp.id === product.id);
-          if(cartProductData){
-            cartProducts.push({productData: product, quantity: cartProductData.quantity});
-          }
-        }
-     
-        res.render('shop/cart/index', {
-          pageTitle: 'Shop | Cart',
-          path: '/cart',
-          products: cartProducts
-        });
-      });
-    });
+  res.render('shop/cart/index', {
+    pageTitle: 'Shop | Cart',
+    path: '/cart',
+    products: []
+  });
 }
 
 const store = (req, res, next) => {

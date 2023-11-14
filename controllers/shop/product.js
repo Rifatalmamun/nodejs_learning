@@ -1,32 +1,26 @@
-const Product = require('../../models/product');
+const Product = require('../../models/Product');
 
 const index = (req, res, next) => {
-  Product.fetchAll()
-    .then(([rows, fieldData])=>{
-      console.log('rows: ', rows);
-      console.log('fieldData: ', fieldData);
-
-      res.render('shop/product/index', {
-        prods: rows,
-        pageTitle: 'Shop | products',
-        path: '/products'
-      });
-    })
-    .catch((err)=>{
-      console.log(err);
+  Product.findAll()
+  .then((response)=>{
+    res.render('shop/product/index', {
+      prods: response,
+      pageTitle: 'Shop | products',
+      path: '/products'
     });
+  }).catch((err)=>{
+    console.log(err);
+  });
 }
 
 const show = (req, res, next) => {
   const productId = req.params.productId;
 
-  Product.findById(productId)
-  .then(([rows, fieldData])=>{
-    console.log('rows: ', rows);
-
+  Product.findByPk(productId)
+  .then((response)=>{
     res.render('shop/product/show', {
-      product: rows[0],
-      pageTitle: rows[0]?.title || 'Shop | Product Details',
+      product: response,
+      pageTitle: response?.title || 'Shop | Product Details',
       path: '/shop/product/show'
     });
   })
@@ -34,6 +28,18 @@ const show = (req, res, next) => {
     console.log(err);
   });
 
+  // another way - findAll return an array
+  // Product.findAll({where:{id: productId}})
+  // .then((response)=>{
+  //   res.render('shop/product/show', {
+  //     product: response[0],
+  //     pageTitle: response[0]?.title || 'Shop | Product Details',
+  //     path: '/shop/product/show'
+  //   });
+  // })
+  // .catch((err)=>{
+  //   console.log(err);
+  // });
 
 }
 

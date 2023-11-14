@@ -1,15 +1,14 @@
-const Product = require('../../models/product');
+const Product = require('../../models/Product');
 
 const index = (req, res, next) => {
-  Product.fetchAll()
-  .then(([rows, fieldData])=>{
+  Product.findAll()
+  .then((response)=>{
     res.render('admin/product/index', {
-      prods: rows,
+      prods: response,
       pageTitle: 'Admin | products',
       path: '/admin/products'
     });
-  })
-  .catch((err)=>{
+  }).catch((err)=>{
     console.log(err);
   });
 }
@@ -27,16 +26,21 @@ const store = (req, res, next) => {
     const imageUrl = req.body.imageUrl;
     const price = req.body.price;
     const description = req.body.description;
-    
-    const product = new Product(null, title, imageUrl, price, description);
-    product.save()
-      .then(()=>{
-        res.redirect('/');
-      })
-      .catch((err)=>{
-        console.log(err);
-      });
-    
+
+    console.log('user: ', req.user);
+    // console.log('userId: ', req.user.id);
+
+    Product.create({
+      title: title,
+      price: price,
+      imageUrl: imageUrl,
+      description: description,
+      userId: 1 // suppose, login user id is 1
+    }).then(()=>{
+      res.redirect('/admin/products');
+    }).catch((err)=>{
+      console.log(err);
+    });
 }
 
 const edit = (req, res, next) => {
@@ -47,18 +51,17 @@ const edit = (req, res, next) => {
     res.redirect('/');
   }
 
-  Product.findById(productId, (product)=>{
-    if(!product){
-      res.redirect('/');
-    }
-
-    res.render('admin/product/create', {
-      pageTitle: 'Admin | Edit Product',
-      path: '/admin/edit-product',
-      editing: editMode,
-      product: product
-    });
-  })
+  Product.findByPk(productId)
+    .then((response)=>{
+      res.render('admin/product/create', {
+        pageTitle: 'Admin | Edit Product',
+        path: '/admin/edit-product',
+        editing: editMode,
+        product: response
+      });
+    }).catch((err)=>{
+      console.log(err);
+    })
 }
 
 const update = (req, res, next) => {
@@ -67,18 +70,33 @@ const update = (req, res, next) => {
   const imageUrl = req.body.imageUrl;
   const price = req.body.price;
   const description = req.body.description;
-  
-  const updateProduct = new Product(id, title, imageUrl, price, description);
-  updateProduct.save();
-  res.redirect('/admin/products');
 
+  Product.findByPk(id)
+    .then((product)=>{
+      product.title = title;
+      product.price = price;
+      product.imageUrl = imageUrl;
+      product.description = description;
+      return product.save();
+    }).then((response)=>{
+      res.redirect('/admin/products');
+      console.log('product updated successfully ', response);
+    }).catch((err)=>{
+      console.log(err);
+    });
 }
 
 const destroy = (req, res, next) => {
   const id = req.body.productId;
 
-  Product.deleteById(id);
-  res.redirect('/admin/products');
+  Product.findByPk(id)
+    .then((product)=>{
+      return product.destroy();
+    }).then((response)=>{
+      res.redirect('/admin/products');
+    }).catch((err)=>{
+      console.log(err);
+    });
 }
 
 

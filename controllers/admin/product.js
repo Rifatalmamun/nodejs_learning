@@ -1,15 +1,16 @@
 const Product = require('../../models/product');
 
 const index = (req, res, next) => {
-  Product.fetchAll((products)=>{
+  Product.fetchAll()
+  .then(([rows, fieldData])=>{
     res.render('admin/product/index', {
-      prods: products,
+      prods: rows,
       pageTitle: 'Admin | products',
-      path: '/admin/products',
-      hasProducts: products?.length > 0,
-      activeShop: true,
-      productCSS: true
-    })
+      path: '/admin/products'
+    });
+  })
+  .catch((err)=>{
+    console.log(err);
   });
 }
 
@@ -28,8 +29,14 @@ const store = (req, res, next) => {
     const description = req.body.description;
     
     const product = new Product(null, title, imageUrl, price, description);
-    product.save();
-    res.redirect('/');
+    product.save()
+      .then(()=>{
+        res.redirect('/');
+      })
+      .catch((err)=>{
+        console.log(err);
+      });
+    
 }
 
 const edit = (req, res, next) => {

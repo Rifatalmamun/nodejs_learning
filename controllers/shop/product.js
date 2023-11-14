@@ -1,31 +1,38 @@
 const Product = require('../../models/product');
 
 const index = (req, res, next) => {
-  Product.fetchAll((products)=>{
-    res.render('shop/product/index', {
-      prods: products,
-      pageTitle: 'Shop | products',
-      path: '/products',
-      hasProducts: products?.length > 0,
-      activeShop: true,
-      productCSS: true
+  Product.fetchAll()
+    .then(([rows, fieldData])=>{
+      console.log('rows: ', rows);
+      console.log('fieldData: ', fieldData);
+
+      res.render('shop/product/index', {
+        prods: rows,
+        pageTitle: 'Shop | products',
+        path: '/products'
+      });
     })
-  });
+    .catch((err)=>{
+      console.log(err);
+    });
 }
 
 const show = (req, res, next) => {
   const productId = req.params.productId;
 
-  Product.findById(productId, (product)=>{
+  Product.findById(productId)
+  .then(([rows, fieldData])=>{
+    console.log('rows: ', rows);
+
     res.render('shop/product/show', {
-      product: product,
-      pageTitle: product?.title || 'Shop | Product Details',
-      path: '/shop/product/show',
-      formsCSS: true,
-      productCSS: true,
-      activeAddProduct: true
+      product: rows[0],
+      pageTitle: rows[0]?.title || 'Shop | Product Details',
+      path: '/shop/product/show'
     });
   })
+  .catch((err)=>{
+    console.log(err);
+  });
 
 
 }

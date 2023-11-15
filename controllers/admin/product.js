@@ -28,14 +28,13 @@ const store = (req, res, next) => {
     const description = req.body.description;
 
     console.log('user: ', req.user);
-    // console.log('userId: ', req.user.id);
 
     Product.create({
       title: title,
       price: price,
       imageUrl: imageUrl,
       description: description,
-      userId: 1 // suppose, login user id is 1
+      userId: 1
     }).then(()=>{
       res.redirect('/admin/products');
     }).catch((err)=>{

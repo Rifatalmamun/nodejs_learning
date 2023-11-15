@@ -1,10 +1,10 @@
 const Product = require('../../models/Product');
 
 const index = (req, res, next) => {
-  Product.findAll()
+  Product.fetchAll()
   .then((response)=>{
     res.render('shop/product/index', {
-      prods: response,
+      prods: response?.length > 0 ? response : [],
       pageTitle: 'Shop | products',
       path: '/products'
     });
@@ -16,7 +16,7 @@ const index = (req, res, next) => {
 const show = (req, res, next) => {
   const productId = req.params.productId;
 
-  Product.findByPk(productId)
+  Product.findById(productId)
   .then((response)=>{
     res.render('shop/product/show', {
       product: response,
@@ -40,7 +40,6 @@ const show = (req, res, next) => {
   // .catch((err)=>{
   //   console.log(err);
   // });
-
 }
 
 module.exports = {index, show};

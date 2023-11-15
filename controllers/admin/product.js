@@ -1,16 +1,16 @@
 const Product = require('../../models/Product');
+const mongoDB = require('mongodb');
+
+const objectId = mongoDB.ObjectId;
 
 const index = (req, res, next) => {
-  Product.findAll()
-  .then((response)=>{
+  Product.fetchAll().then((response)=>{
     res.render('admin/product/index', {
-      prods: response,
+      prods: response?.length > 0 ? response : [],
       pageTitle: 'Admin | products',
       path: '/admin/products'
     });
-  }).catch((err)=>{
-    console.log(err);
-  });
+  }).catch(err => console.log(err));
 }
 
 const create = (req, res, next) => {
@@ -27,19 +27,13 @@ const store = (req, res, next) => {
     const price = req.body.price;
     const description = req.body.description;
 
-    console.log('user: ', req.user);
-
-    Product.create({
-      title: title,
-      price: price,
-      imageUrl: imageUrl,
-      description: description,
-      userId: 1
-    }).then(()=>{
-      res.redirect('/admin/products');
-    }).catch((err)=>{
-      console.log(err);
-    });
+    const product = new Product(null, title, price, imageUrl, description);
+    product.save()
+      .then(()=>{
+        res.redirect('/admin/products');
+      }).catch((err)=>{
+        console.log(err);
+      });
 }
 
 const edit = (req, res, next) => {
@@ -50,7 +44,7 @@ const edit = (req, res, next) => {
     res.redirect('/');
   }
 
-  Product.findByPk(productId)
+  Product.findById(productId)
     .then((response)=>{
       res.render('admin/product/create', {
         pageTitle: 'Admin | Edit Product',
@@ -65,21 +59,17 @@ const edit = (req, res, next) => {
 
 const update = (req, res, next) => {
   const id = req.body.productId;
+  const objId = new mongoDB.ObjectId(id);
   const title = req.body.title;
   const imageUrl = req.body.imageUrl;
   const price = req.body.price;
   const description = req.body.description;
 
-  Product.findByPk(id)
-    .then((product)=>{
-      product.title = title;
-      product.price = price;
-      product.imageUrl = imageUrl;
-      product.description = description;
-      return product.save();
-    }).then((response)=>{
+  const updateProduct = new Product(objId, title, price, imageUrl, description);
+
+  updateProduct.save(id)
+    .then((response)=>{
       res.redirect('/admin/products');
-      console.log('product updated successfully ', response);
     }).catch((err)=>{
       console.log(err);
     });
@@ -88,14 +78,12 @@ const update = (req, res, next) => {
 const destroy = (req, res, next) => {
   const id = req.body.productId;
 
-  Product.findByPk(id)
-    .then((product)=>{
-      return product.destroy();
-    }).then((response)=>{
-      res.redirect('/admin/products');
-    }).catch((err)=>{
-      console.log(err);
-    });
+  Product.deleteById(id)
+  .then((response)=>{
+    res.redirect('/admin/products');
+  }).catch((err)=>{
+    console.log(err);
+  });
 }
 
 

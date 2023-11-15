@@ -25,11 +25,11 @@
                         </div>
                         <div class="card__actions" style="display: flex; justify-content: center;">
                             <div>
-                                <a href="/product/<%= product.id %>" class="btn" style="text-decoration: none;padding: 4px;">Details</a>
+                                <a href="/product/<%= product._id %>" class="btn" style="text-decoration: none;padding: 4px;">Details</a>
                             </div>
 
                             <form action="/store-cart" method="POST">
-                                <input type="hidden" name="productId" value="<%= product.id %>">
+                                <input type="hidden" name="productId" value="<%= product._id %>">
                                 <button type="submit" class="btn" style="padding: 4px; margin-top: -4px">Add to Cart</a>
                             </form>
                         </div>

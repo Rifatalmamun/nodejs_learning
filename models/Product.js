@@ -2,12 +2,13 @@ const mongoDB = require('mongodb');
 const mongo = require('../config/database');
 
 class Product{
-    constructor(id, title, price, imageUrl, description){
+    constructor(title, price, imageUrl, description, id, userId){
         this.title = title;
         this.price = price;
         this.imageUrl = imageUrl;
         this.description = description;
-        this._id = id;
+        this._id = id ? new mongoDB.ObjectId(id) : null;
+        this.userId = userId ?? null;
     }
 
     save() {
@@ -17,7 +18,7 @@ class Product{
         if(this._id){
             // update the product
             dbOp = db.collection('products').updateOne({
-                _id: new mongoDB.ObjectId(this._id)
+                _id: this._id
             }, {$set: this});
         }else{
             // create the product
@@ -26,7 +27,7 @@ class Product{
 
         return dbOp
             .then((res) => {
-                console.log(res);
+                // console.log(res);
             })
             .catch((err) => {
                 console.log(err);
@@ -46,23 +47,23 @@ class Product{
 
     static findById(id) {
         const db = mongo.getDB();
-        return db.collection('products').find({
-                _id: new mongoDB.ObjectId(id)
-            }).next()
-            .then(res => {
-                console.log('findById response: ', res);
+        const objectId = new mongoDB.ObjectId(id);
+
+        return db.collection('products').findOne({
+                _id: objectId
+            }).then(res => {
                 return res;
-            })
-            .catch(err => {
+            }).catch(err => {
                 console.log(err);
             });
     }
 
     static deleteById(id) {
         const db = mongo.getDB();
+        const objectId = new mongoDB.ObjectId(id);
 
         return db.collection('products').deleteOne({
-            _id: new mongoDB.ObjectId(id)
+            _id: objectId
         }).then((res)=>{
             return res;
         })

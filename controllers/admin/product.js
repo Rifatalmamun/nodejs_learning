@@ -27,7 +27,17 @@ const store = (req, res, next) => {
     const price = req.body.price;
     const description = req.body.description;
 
-    const product = new Product(null, title, price, imageUrl, description);
+    const loggedInUserId = req.user._id;
+
+    const product = new Product(
+      title, 
+      price, 
+      imageUrl, 
+      description, 
+      null, // product id when create a product is null
+      loggedInUserId
+      );
+
     product.save()
       .then(()=>{
         res.redirect('/admin/products');
@@ -59,13 +69,12 @@ const edit = (req, res, next) => {
 
 const update = (req, res, next) => {
   const id = req.body.productId;
-  const objId = new mongoDB.ObjectId(id);
   const title = req.body.title;
   const imageUrl = req.body.imageUrl;
   const price = req.body.price;
   const description = req.body.description;
 
-  const updateProduct = new Product(objId, title, price, imageUrl, description);
+  const updateProduct = new Product(title, price, imageUrl, description, id);
 
   updateProduct.save(id)
     .then((response)=>{
@@ -79,7 +88,7 @@ const destroy = (req, res, next) => {
   const id = req.body.productId;
 
   Product.deleteById(id)
-  .then((response)=>{
+  .then(()=>{
     res.redirect('/admin/products');
   }).catch((err)=>{
     console.log(err);

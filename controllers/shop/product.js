@@ -1,8 +1,12 @@
+const mongoose = require('mongoose');
 const Product = require('../../models/Product');
 
 const index = (req, res, next) => {
-  Product.fetchAll()
+  Product.find()
+  .select('title price imageUrl -_id')
+  .populate('userId', 'name email -_id')
   .then((response)=>{
+    console.log('product list: =================== ', response);
     res.render('shop/product/index', {
       prods: response?.length > 0 ? response : [],
       pageTitle: 'Shop | products',
@@ -27,19 +31,6 @@ const show = (req, res, next) => {
   .catch((err)=>{
     console.log(err);
   });
-
-  // another way - findAll return an array
-  // Product.findAll({where:{id: productId}})
-  // .then((response)=>{
-  //   res.render('shop/product/show', {
-  //     product: response[0],
-  //     pageTitle: response[0]?.title || 'Shop | Product Details',
-  //     path: '/shop/product/show'
-  //   });
-  // })
-  // .catch((err)=>{
-  //   console.log(err);
-  // });
 }
 
 module.exports = {index, show};

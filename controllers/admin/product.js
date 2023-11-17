@@ -1,10 +1,8 @@
+const mongoose = require('mongoose');
 const Product = require('../../models/Product');
-const mongoDB = require('mongodb');
-
-const objectId = mongoDB.ObjectId;
 
 const index = (req, res, next) => {
-  Product.fetchAll().then((response)=>{
+  Product.find().then((response)=>{
     res.render('admin/product/index', {
       prods: response?.length > 0 ? response : [],
       pageTitle: 'Admin | products',
@@ -22,21 +20,24 @@ const create = (req, res, next) => {
 }
 
 const store = (req, res, next) => {
+  if(!req?.user?._id){
+    console.log('user not found');
+    return;
+  }
     const title = req.body.title;
     const imageUrl = req.body.imageUrl;
     const price = req.body.price;
     const description = req.body.description;
 
-    const loggedInUserId = req.user._id;
+    // const loggedInUserId = req.user._id;
 
-    const product = new Product(
-      title, 
-      price, 
-      imageUrl, 
-      description, 
-      null, // product id when create a product is null
-      loggedInUserId
-      );
+    const product = new Product({
+      title: title,
+      price: price,
+      description: description,
+      imageUrl: imageUrl,
+      userId: req.user
+    });
 
     product.save()
       .then(()=>{
@@ -47,14 +48,14 @@ const store = (req, res, next) => {
 }
 
 const edit = (req, res, next) => {
-  const productId = req.params.productId;
+  const id = req.params.productId;
   const editMode = req.query.edit;
 
   if(!editMode){
     res.redirect('/');
   }
 
-  Product.findById(productId)
+  Product.findById(id)
     .then((response)=>{
       res.render('admin/product/create', {
         pageTitle: 'Admin | Edit Product',
@@ -74,25 +75,57 @@ const update = (req, res, next) => {
   const price = req.body.price;
   const description = req.body.description;
 
-  const updateProduct = new Product(title, price, imageUrl, description, id);
-
-  updateProduct.save(id)
-    .then((response)=>{
+  Product.findById(id)
+    .then(product =>{
+      product.title = title;
+      product.price = price;
+      product.description = description;
+      product.imageUrl = imageUrl;
+      
+      return product.save();
+    }).then(response =>{
       res.redirect('/admin/products');
     }).catch((err)=>{
       console.log(err);
     });
+
+    //NOTE - ANOTHER WAY OF UPDATE
+  // const objectId = new mongoose.Types.ObjectId(id);
+  // Product.updateOne(
+  //   {_id: objectId},
+  //   {
+  //     $set: {
+  //       title: title,
+  //       price: price,
+  //       description: description,
+  //       imageUrl: imageUrl
+  //     }
+  //   }
+  // ).then(response =>{
+  //   res.redirect('/admin/products');
+  // }).catch(err =>{
+  //   console.log(err);
+  // });
 }
 
 const destroy = (req, res, next) => {
-  const id = req.body.productId;
+  const objectId = new mongoose.Types.ObjectId(req.body.productId);
 
-  Product.deleteById(id)
+  Product.deleteOne({_id: objectId})
   .then(()=>{
     res.redirect('/admin/products');
   }).catch((err)=>{
     console.log(err);
   });
+
+  //NOTE - ANOTHER WAY OF DELETE
+  // const id = req.body.productId;
+  // Product.findOneAndDelete(id)
+  // .then((response)=>{
+  //   res.redirect('/admin/products');
+  // }).catch((err)=>{
+  //   console.log(err);
+  // });
 }
 
 

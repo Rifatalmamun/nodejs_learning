@@ -1,7 +1,6 @@
 const index = (req, res, next) => {
   req.user.getOrders()
   .then(result =>{
-    console.log('result ==========================: ', result);
     res.render('shop/order/index', {
       pageTitle: 'Shop | Order',
       path: '/order',

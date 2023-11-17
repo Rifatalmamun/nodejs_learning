@@ -16,8 +16,9 @@ router.get('/cart', cartController.index);
 router.post('/store-cart', cartController.store);
 router.post('/delete-cart', cartController.destroy);
 
+router.get('/orders', orderController.index);
+router.post('/store-order', orderController.store);
 
 router.get('/checkout', checkoutController.index);
-router.get('/orders', orderController.index);
 
 module.exports = {router};

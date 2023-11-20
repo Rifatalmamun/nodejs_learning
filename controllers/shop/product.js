@@ -3,14 +3,14 @@ const Product = require('../../models/Product');
 
 const index = (req, res, next) => {
   Product.find()
-  .select('title price imageUrl -_id')
-  .populate('userId', 'name email -_id')
+  // .select('title price imageUrl -_id')
+  // .populate('userId', 'name email -_id')
   .then((response)=>{
-    console.log('product list: =================== ', response);
     res.render('shop/product/index', {
       prods: response?.length > 0 ? response : [],
       pageTitle: 'Shop | products',
-      path: '/products'
+      path: '/products',
+      isAuthenticated: req.isLoggedIn
     });
   }).catch((err)=>{
     console.log(err);
@@ -25,7 +25,8 @@ const show = (req, res, next) => {
     res.render('shop/product/show', {
       product: response,
       pageTitle: response?.title || 'Shop | Product Details',
-      path: '/shop/product/show'
+      path: '/shop/product/show',
+      isAuthenticated: req.isLoggedIn
     });
   })
   .catch((err)=>{

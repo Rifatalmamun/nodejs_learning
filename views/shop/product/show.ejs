@@ -22,8 +22,8 @@
                     <p class="product__description"><%= product.description %></p>
                 </div>
                 <div class="card__actions" style="display: flex; justify-content: center;">
-                    <form action="/cart" method="POST">
-                        <input type="hidden" name="productId" value="<%= product.id %>">
+                    <form action="/store-cart" method="POST">
+                        <input type="hidden" name="productId" value="<%= product._id %>">
                         <button type="submit" class="btn" style="padding: 4px; margin-top: -4px">Add to Cart</a>
                     </form>
                 </div>

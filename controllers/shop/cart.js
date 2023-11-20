@@ -2,12 +2,21 @@ const Product = require("../../models/Product");
 
 
 const index = (req, res, next) => {
-  req.user.getCart()
-    .then(products => {
+  req.user
+  .populate('cart.items.productId')
+    .then(response => {
+      // console.log('products: ', response.cart.items);
+      const products = [];
+
+      response?.cart?.items.forEach((d)=>{
+        products.push({...d.productId?._doc, quantity: d.quantity});
+      });
+      
       res.render('shop/cart/index', {
         pageTitle: 'Shop | Cart',
         path: '/cart',
-        products: products ?? []
+        products: products,
+        isAuthenticated: req.isLoggedIn
       });
     }).catch(err =>{
       console.log(err);
@@ -31,8 +40,8 @@ const destroy = (req, res, next) => {
   const productId = req.body.productId;
 
   req.user.deleteCartProduct(productId)
-  .then(response =>{
-    res.redirect('/cart');
+  .then((result)=>{
+      res.redirect('/cart');
   }).catch(err =>{
     console.log(err);
   });

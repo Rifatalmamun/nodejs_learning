@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
+const { Schema } = mongoose;
 
-const userSchema = new mongoose.Schema({
+const userSchema = new Schema({
     name: {
         type: String,
         required: true
@@ -18,6 +19,39 @@ const userSchema = new mongoose.Schema({
         ]
     }
 });
+
+userSchema.methods.addToCart = function(product) {
+
+    const cartProductIndex = this.cart.items.findIndex(cp => {
+      return cp.productId.toString() === product._id.toString();
+    });
+    let newQuantity = 1;
+    const updatedCartItems = [...this.cart.items];
+  
+    if (cartProductIndex >= 0) {
+      newQuantity = this.cart.items[cartProductIndex].quantity + 1;
+      updatedCartItems[cartProductIndex].quantity = newQuantity;
+    } else {
+      updatedCartItems.push({
+        productId: product._id,
+        quantity: newQuantity
+      });
+    }
+
+    this.cart = {
+        items: updatedCartItems
+      };
+    return this.save();
+};
+
+userSchema.methods.deleteCartProduct = function (productId) {
+
+    const updatedCartItems = this.cart?.items?.filter((item)=> item.productId.toString() !== productId.toString());
+    console.log(updatedCartItems);
+
+    this.cart.items = updatedCartItems;
+    return this.save();
+};
 
 module.exports = mongoose.model('User', userSchema);
 
@@ -70,29 +104,29 @@ module.exports = mongoose.model('User', userSchema);
 //     // cart related methods
 
 //     addToCart(product){
-//         const tempCart = this.cart?.items ?? [];
-//         const cartItems = [...tempCart];
+        // const tempCart = this.cart?.items ?? [];
+        // const cartItems = [...tempCart];
         
-//         const cartItemIndex = cartItems?.findIndex((cItem)=> cItem.productId.toString() === product._id.toString());
+        // const cartItemIndex = cartItems?.findIndex((cItem)=> cItem.productId.toString() === product._id.toString());
 
-//         if(cartItemIndex >=0){
-//             cartItems[cartItemIndex].quantity = cartItems[cartItemIndex].quantity + 1;
-//         }else{
-//             const newItem = {productId: new mongoDB.ObjectId(product._id), quantity: 1 };
-//             cartItems.push(newItem);
-//         }
+        // if(cartItemIndex >=0){
+        //     cartItems[cartItemIndex].quantity = cartItems[cartItemIndex].quantity + 1;
+        // }else{
+        //     const newItem = {productId: new mongoDB.ObjectId(product._id), quantity: 1 };
+        //     cartItems.push(newItem);
+        // }
 
-//         const db = mongo.getDB();
+        // const db = mongo.getDB();
         
-//         return db.collection('users').updateOne({
-//             _id: new mongoDB.ObjectId(this._id),
-//         },{
-//             $set: {
-//                 cart: {
-//                     items: cartItems 
-//                 }
-//             }
-//         });
+        // return db.collection('users').updateOne({
+        //     _id: new mongoDB.ObjectId(this._id),
+        // },{
+        //     $set: {
+        //         cart: {
+        //             items: cartItems 
+        //         }
+        //     }
+        // });
 //     }
 
 //     getCart(){
@@ -133,8 +167,7 @@ module.exports = mongoose.model('User', userSchema);
 //         .catch(err => console.log(err));
 //     }
 
-//     // order related methods
-
+//     // order related methods===============
 //     addOrder(){
 //         const db = mongo.getDB();
 //         const userId = new mongoDB.ObjectId(this._id);

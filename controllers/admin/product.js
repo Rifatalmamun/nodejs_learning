@@ -6,7 +6,8 @@ const index = (req, res, next) => {
     res.render('admin/product/index', {
       prods: response?.length > 0 ? response : [],
       pageTitle: 'Admin | products',
-      path: '/admin/products'
+      path: '/admin/products',
+      isAuthenticated: req.isLoggedIn
     });
   }).catch(err => console.log(err));
 }
@@ -16,6 +17,7 @@ const create = (req, res, next) => {
       pageTitle: 'Admin | Add Product',
       path: '/admin/add-product',
       editing: false,
+      isAuthenticated: req.isLoggedIn
     });
 }
 
@@ -28,8 +30,6 @@ const store = (req, res, next) => {
     const imageUrl = req.body.imageUrl;
     const price = req.body.price;
     const description = req.body.description;
-
-    // const loggedInUserId = req.user._id;
 
     const product = new Product({
       title: title,
@@ -61,7 +61,8 @@ const edit = (req, res, next) => {
         pageTitle: 'Admin | Edit Product',
         path: '/admin/edit-product',
         editing: editMode,
-        product: response
+        product: response,
+        isAuthenticated: req.isLoggedIn
       });
     }).catch((err)=>{
       console.log(err);

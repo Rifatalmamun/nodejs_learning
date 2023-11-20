@@ -13,14 +13,14 @@
                         <li class="orders__item" style="border-bottom: 1px solid rgb(134, 134, 138)">
                             <h4>Order - # <%= order._id %></h4>
                             <ul class="orders__products">
-                                <% order.items.forEach(product => { %>
+                                <% order.products.forEach(product => { %>
                                     <li class="orders__products-item" style="margin: 10px;">
                                         <div>
-                                            <%= product.title %>
+                                            <%= product.product.title %>
                                         </div>
                                         <div>
                                             <small>Quantity: <%= product.quantity %></small>
-                                            <small>Price: <%= product.price %></small>
+                                            <small>Price: <%= product.product.price %></small>
                                         </div>
                                     </li>
                                 <% }); %>

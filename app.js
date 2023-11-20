@@ -4,6 +4,7 @@ const express = require('express');
 const errorController = require('./controllers/error');
 const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
+const authRoutes = require('./routes/auth');
 const User = require('./models/User');
 
 const app = express();
@@ -28,11 +29,12 @@ app.use((req, res, next) => {
 
 app.use('/admin', adminRoutes.router);
 app.use(shopRoutes.router);
+app.use(authRoutes.router);
 app.use(errorController.get404);
 
 mongoose.connect('mongodb+srv://rifat:Rifat150107@cluster0.yi05v88.mongodb.net/shop')
   .then(res =>{
-    app.listen(3005);
+    app.listen(3005); 
   }).catch(err =>{
     console.log('connection failed!');
   });

@@ -10,7 +10,7 @@ const index = (req, res, next) => {
       prods: response?.length > 0 ? response : [],
       pageTitle: 'Shop | products',
       path: '/products',
-      isAuthenticated: req.isLoggedIn
+      isAuthenticated: req.session.isLoggedIn
     });
   }).catch((err)=>{
     console.log(err);
@@ -26,7 +26,7 @@ const show = (req, res, next) => {
       product: response,
       pageTitle: response?.title || 'Shop | Product Details',
       path: '/shop/product/show',
-      isAuthenticated: req.isLoggedIn
+      isAuthenticated: req.session.isLoggedIn
     });
   })
   .catch((err)=>{

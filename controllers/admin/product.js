@@ -7,7 +7,7 @@ const index = (req, res, next) => {
       prods: response?.length > 0 ? response : [],
       pageTitle: 'Admin | products',
       path: '/admin/products',
-      isAuthenticated: req.isLoggedIn
+      isAuthenticated: req.session.isLoggedIn
     });
   }).catch(err => console.log(err));
 }
@@ -17,12 +17,12 @@ const create = (req, res, next) => {
       pageTitle: 'Admin | Add Product',
       path: '/admin/add-product',
       editing: false,
-      isAuthenticated: req.isLoggedIn
+      isAuthenticated: req.session.isLoggedIn
     });
 }
 
 const store = (req, res, next) => {
-  if(!req?.user?._id){
+  if(!req?.session?.user?._id){
     console.log('user not found');
     return;
   }
@@ -62,7 +62,7 @@ const edit = (req, res, next) => {
         path: '/admin/edit-product',
         editing: editMode,
         product: response,
-        isAuthenticated: req.isLoggedIn
+        isAuthenticated: req.session.isLoggedIn
       });
     }).catch((err)=>{
       console.log(err);

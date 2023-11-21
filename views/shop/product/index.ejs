@@ -28,10 +28,12 @@
                                 <a href="/product/<%= product._id %>" class="btn" style="text-decoration: none;padding: 4px;">Details</a>
                             </div>
 
+                            <% if(isAuthenticated) {%>
                             <form action="/store-cart" method="POST">
                                 <input type="hidden" name="productId" value="<%= product._id %>">
                                 <button type="submit" class="btn" style="padding: 4px; margin-top: -4px">Add to Cart</a>
                             </form>
+                            <% } %>
                         </div>
                     </article>
                 <% } %>

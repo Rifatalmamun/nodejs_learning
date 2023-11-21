@@ -5,7 +5,6 @@ const index = (req, res, next) => {
   req.user
   .populate('cart.items.productId')
     .then(response => {
-      // console.log('products: ', response.cart.items);
       const products = [];
 
       response?.cart?.items.forEach((d)=>{
@@ -16,7 +15,7 @@ const index = (req, res, next) => {
         pageTitle: 'Shop | Cart',
         path: '/cart',
         products: products,
-        isAuthenticated: req.isLoggedIn
+        isAuthenticated: req.session.isLoggedIn
       });
     }).catch(err =>{
       console.log(err);

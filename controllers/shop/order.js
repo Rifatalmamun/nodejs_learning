@@ -2,20 +2,20 @@ const Order = require('../../models/Order');
 const User = require('../../models/User');
 
 const index = (req, res, next) => {
-  Order.find({'user.userId': req.user._id})
+  Order.find({'user.userId': req.session.user._id})
   .then(result =>{
     res.render('shop/order/index', {
       pageTitle: 'Shop | Order',
       path: '/order',
       orders: result,
-      isAuthenticated: req.isLoggedIn
+      isAuthenticated: req.session.isLoggedIn
     });
   })
   .catch(err => console.log(err));
 }
 
 const store = (req, res, next) => {
-  req.user
+  req.session.user
   .populate('cart.items.productId')
   .then(result => {
    
@@ -26,14 +26,14 @@ const store = (req, res, next) => {
     const order = new Order({
       products: products,
       user:{
-        name: req.user.name,
-        userId: req.user // ref User
+        name: req.session.user.name,
+        userId: req.session.user // ref User
       }
     });
 
     order.save().then(()=>{
       // now remove the user cart
-      User.findById(req.user._id).then((user)=>{
+      User.findById(req.session.user._id).then((user)=>{
         user.cart.items = [];
         return user.save();
       })

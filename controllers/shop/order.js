@@ -7,15 +7,14 @@ const index = (req, res, next) => {
     res.render('shop/order/index', {
       pageTitle: 'Shop | Order',
       path: '/order',
-      orders: result,
-      isAuthenticated: req.session.isLoggedIn
+      orders: result
     });
   })
   .catch(err => console.log(err));
 }
 
 const store = (req, res, next) => {
-  req.session.user
+  req.user
   .populate('cart.items.productId')
   .then(result => {
    

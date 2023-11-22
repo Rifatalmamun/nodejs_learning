@@ -108,3 +108,17 @@ main {
   background-color: #00695c;
   color: white;
 }
+
+.user-message {
+  margin: auto;
+  width: 90%;
+  padding: 0.5rem;
+  border-radius: 3px;
+  background: #b9c9ff;
+  text-align: center;
+}
+
+.user-message--error {
+  background: rgb(253, 213, 213);
+  color: red;
+}

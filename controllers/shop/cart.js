@@ -14,8 +14,7 @@ const index = (req, res, next) => {
       res.render('shop/cart/index', {
         pageTitle: 'Shop | Cart',
         path: '/cart',
-        products: products,
-        isAuthenticated: req.session.isLoggedIn
+        products: products
       });
     }).catch(err =>{
       console.log(err);

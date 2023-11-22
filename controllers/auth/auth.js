@@ -1,39 +1,19 @@
 const bcrypt = require('bcryptjs');
 const User = require('../../models/User');
 
-const loginPage = (req, res, next) => {
-  res.render('auth/login', {
-    path: '/login',
-    pageTitle: 'Login',
-    isAuthenticated: false
-  });
-};
-
-const login = (req, res, next) => {
-  User.findById('65573a835aaa966fcbfb026a')
-    .then(user => {
-      req.session.user = user;
-      req.session.isLoggedIn = true;
-      req.session.save((err)=>{
-        res.redirect('/products');
-      });
-    })
-    .catch(err => {
-      console.log(err); 
-    });
-}
-
-const logout = (req, res, next) => {
-  req.session.destroy(err => {
-    res.redirect('/');
-  })
-}
-
 const signupPage = (req, res, next) => {
+  let message = req.flash('signupFailedMsg');
+
+  if(message.length > 0){
+    message = message[0];
+  }else{
+    message = null
+  }
+
   res.render('auth/signup', {
     path: '/signup',
     pageTitle: 'Signup',
-    isAuthenticated: false
+    errorMessage: message
   });
 };
 
@@ -46,6 +26,7 @@ const signup = (req, res, next) => {
   User.findOne({email: email})
   .then(userExist => {
     if(userExist){
+      req.flash('signupFailedMsg', 'Email already used! Please use another email');
       return res.redirect('/signup');
     }
     return bcrypt.hash(password, 12)
@@ -62,6 +43,61 @@ const signup = (req, res, next) => {
         res.redirect('/login');
       });
   }).catch(err => console.log(err));
+}
+
+const loginPage = (req, res, next) => {
+  let message = req.flash('loginFailedMsg');
+
+  if(message.length > 0){
+    message = message[0];
+  }else{
+    message = null
+  }
+
+  res.render('auth/login', {
+    path: '/login',
+    pageTitle: 'Login',
+    errorMessage: message
+  });
+};
+
+const login = (req, res, next) => {
+  const email = req.body.email;
+  const password = req.body.password;
+
+  User.findOne({email: email})
+  .then(user => {
+    if(!user){
+      req.flash('loginFailedMsg', 'Invalid email or password!');
+      return res.redirect('/login');
+    }
+    return bcrypt.compare(password,user.password)
+      .then(isMatch =>{
+        if(isMatch){
+          req.session.user = user;
+          req.session.isLoggedIn = true;
+          return req.session.save((err)=>{
+            res.redirect('/products');
+          });
+        }
+        req.flash('loginFailedMsg', 'Invalid email or password!');
+        return res.redirect('/login');
+      })
+      .catch(err => {
+        console.log(err);
+        res.redirect('/login')
+      });
+  })
+  .catch(err => {
+    console.log(err);
+    res.redirect('/login')
+  });
+}
+
+const logout = (req, res, next) => {
+  req.session.destroy(err => {
+    res.redirect('/');
+  })
 }
 
 module.exports = {loginPage, login, logout, signupPage, signup}

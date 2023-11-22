@@ -15,6 +15,7 @@
         <% } %>
         
         <form class="product-form" action="/admin/<% if(editing) { %>update-product<%} else {%>store-product<%} %>" method="POST">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
             <% if(editing) { %>
                 <input type="hidden" name="productId" value="<%= product._id%>"/>
             <% } %>

@@ -9,8 +9,7 @@ const index = (req, res, next) => {
     res.render('shop/product/index', {
       prods: response?.length > 0 ? response : [],
       pageTitle: 'Shop | products',
-      path: '/products',
-      isAuthenticated: req.session.isLoggedIn
+      path: '/products'
     });
   }).catch((err)=>{
     console.log(err);
@@ -25,8 +24,7 @@ const show = (req, res, next) => {
     res.render('shop/product/show', {
       product: response,
       pageTitle: response?.title || 'Shop | Product Details',
-      path: '/shop/product/show',
-      isAuthenticated: req.session.isLoggedIn
+      path: '/shop/product/show'
     });
   })
   .catch((err)=>{

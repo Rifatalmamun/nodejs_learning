@@ -7,11 +7,14 @@ const shopRoutes = require('./routes/shop');
 const authRoutes = require('./routes/auth');
 const User = require('./models/User');
 const session = require('express-session');
+const csrf = require('csurf');
+const flash = require('connect-flash');
 const MongoDBStore = require('connect-mongodb-session')(session);
 
 const MONGODB_URI = 'mongodb+srv://rifat:Rifat150107@cluster0.yi05v88.mongodb.net/shop';
 
 const app = express();
+const csrfProtection = csrf();
 const store = new MongoDBStore({
   uri: MONGODB_URI,
   collection: 'sessions' 
@@ -22,13 +25,15 @@ app.set('views', 'views');
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
+
 app.use(session({
   secret: 'mySecret',
   resave: false,
   saveUninitialized: false,
   store: store
 }));
-
+app.use(csrfProtection);
+app.use(flash());
 app.use((req, res, next)=>{
   if(!req.session.user){
     return next();
@@ -40,6 +45,13 @@ app.use((req, res, next)=>{
       next();
     })
     .catch(err => console.log(err));
+});
+
+app.use((req, res, next)=>{
+  // res.locals value render in every view template
+  res.locals.isAuthenticated= req.session.isLoggedIn;
+  res.locals.csrfToken= req.csrfToken();
+  next();
 });
 
 app.use('/admin', adminRoutes.router);

@@ -7,7 +7,6 @@ const index = (req, res, next) => {
       prods: response?.length > 0 ? response : [],
       pageTitle: 'Admin | products',
       path: '/admin/products',
-      isAuthenticated: req.session.isLoggedIn
     });
   }).catch(err => console.log(err));
 }
@@ -17,7 +16,6 @@ const create = (req, res, next) => {
       pageTitle: 'Admin | Add Product',
       path: '/admin/add-product',
       editing: false,
-      isAuthenticated: req.session.isLoggedIn
     });
 }
 
@@ -62,7 +60,6 @@ const edit = (req, res, next) => {
         path: '/admin/edit-product',
         editing: editMode,
         product: response,
-        isAuthenticated: req.session.isLoggedIn
       });
     }).catch((err)=>{
       console.log(err);

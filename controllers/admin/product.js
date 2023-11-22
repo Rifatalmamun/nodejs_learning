@@ -2,9 +2,9 @@ const mongoose = require('mongoose');
 const Product = require('../../models/Product');
 
 const index = (req, res, next) => {
-  Product.find().then((response)=>{
+  Product.find({userId: req.user._id}).then((result)=>{
     res.render('admin/product/index', {
-      prods: response?.length > 0 ? response : [],
+      prods: result?.length > 0 ? result : [],
       pageTitle: 'Admin | products',
       path: '/admin/products',
     });
@@ -54,12 +54,15 @@ const edit = (req, res, next) => {
   }
 
   Product.findById(id)
-    .then((response)=>{
-      res.render('admin/product/create', {
+    .then((product)=>{
+      if(product.userId.toString() !== req.user._id.toString()){
+        return res.redirect('/admin/products')
+      }
+      return res.render('admin/product/create', {
         pageTitle: 'Admin | Edit Product',
         path: '/admin/edit-product',
         editing: editMode,
-        product: response,
+        product: product,
       });
     }).catch((err)=>{
       console.log(err);
@@ -75,14 +78,18 @@ const update = (req, res, next) => {
 
   Product.findById(id)
     .then(product =>{
+      if(product.userId.toString() !== req.user._id.toString()){
+        return res.redirect('/admin/products')
+      }
       product.title = title;
       product.price = price;
       product.description = description;
       product.imageUrl = imageUrl;
       
-      return product.save();
-    }).then(response =>{
-      res.redirect('/admin/products');
+      return product.save()
+      .then(result =>{
+        res.redirect('/admin/products');
+      });
     }).catch((err)=>{
       console.log(err);
     });
@@ -107,10 +114,10 @@ const update = (req, res, next) => {
 }
 
 const destroy = (req, res, next) => {
-  const objectId = new mongoose.Types.ObjectId(req.body.productId);
+  const id = req.body.productId;
 
-  Product.deleteOne({_id: objectId})
-  .then(()=>{
+  Product.deleteOne({_id: id, userId: req.user._id})
+  .then((result)=>{
     res.redirect('/admin/products');
   }).catch((err)=>{
     console.log(err);

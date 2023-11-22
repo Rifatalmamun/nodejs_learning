@@ -9,4 +9,11 @@ router.post('/logout', authController.logout);
 router.get('/signup', authController.signupPage);
 router.post('/signup', authController.signup);
 
+router.get('/reset-password-email', authController.resetPasswordEmailPage);
+router.post('/reset-password-email', authController.resetPasswordEmail);
+
+router.get('/reset-password-:token', authController.resetPasswordPage);
+router.post('/reset-password', authController.resetPassword);
+
+
 module.exports = {router};

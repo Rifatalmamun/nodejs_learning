@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Product = require('../../models/Product');
+const {validationResult} = require('express-validator');
 
 const index = (req, res, next) => {
   Product.find({userId: req.user._id}).then((result)=>{
@@ -12,11 +13,28 @@ const index = (req, res, next) => {
 }
 
 const create = (req, res, next) => {
-    res.render('admin/product/create', {
-      pageTitle: 'Admin | Add Product',
-      path: '/admin/add-product',
-      editing: false,
-    });
+  let message = req.flash('error');
+
+  if(message.length > 0){
+    message = message[0];
+  }else{
+    message = null
+  }
+
+  res.render('admin/product/create', {
+    pageTitle: 'Admin | Add Product',
+    path: '/admin/add-product',
+    editing: false,
+    errorMessage: message,
+    oldInput: {
+      title: '',
+      price: '',
+      imageUrl: '',
+      description: ''
+    },
+    validationErrors: [],
+    hasError: false
+  });
 }
 
 const store = (req, res, next) => {
@@ -28,8 +46,27 @@ const store = (req, res, next) => {
     const imageUrl = req.body.imageUrl;
     const price = req.body.price;
     const description = req.body.description;
+    const errors = validationResult(req);
+
+    if(!errors.isEmpty()){
+      return res.status(422).render('admin/product/create', {
+        pageTitle: 'Admin | Create Product',
+        path: '/admin/create-product',
+        editing: false,
+        errorMessage: errors.array()[0].msg,
+        product: {
+          title: title,
+          price: price,
+          imageUrl: imageUrl,
+          description: description
+        },
+        validationErrors: errors.array(),
+        hasError: true
+      })
+    }
 
     const product = new Product({
+      _id: new mongoose.Types.ObjectId('655ddb5b98466b6bc009e6f9'),
       title: title,
       price: price,
       description: description,
@@ -41,7 +78,9 @@ const store = (req, res, next) => {
       .then(()=>{
         res.redirect('/admin/products');
       }).catch((err)=>{
-        console.log(err);
+        const error = new Error(err);
+        error.httpStatusCode = 500;
+        return next(error);
       });
 }
 
@@ -61,8 +100,11 @@ const edit = (req, res, next) => {
       return res.render('admin/product/create', {
         pageTitle: 'Admin | Edit Product',
         path: '/admin/edit-product',
-        editing: editMode,
+        editing: true,
+        errorMessage: '',
         product: product,
+        validationErrors: [],
+        hasError: false
       });
     }).catch((err)=>{
       console.log(err);
@@ -73,8 +115,27 @@ const update = (req, res, next) => {
   const id = req.body.productId;
   const title = req.body.title;
   const imageUrl = req.body.imageUrl;
-  const price = req.body.price;
+  const price = req.body.price ? Number(req.body.price) : undefined;
   const description = req.body.description;
+
+  const errors = validationResult(req);
+  if(!errors.isEmpty()){
+    return res.status(422).render('admin/product/create', {
+      pageTitle: 'Admin | Edit Product',
+      path: `admin/product/edit/${id}?edit=true`,
+      editing: true,
+      errorMessage: errors.array()[0].msg,
+      product: {
+        title: title,
+        price: price,
+        imageUrl: imageUrl,
+        description: description,
+        _id: id
+      },
+      validationErrors: errors.array(),
+      hasError: true
+    })
+  }
 
   Product.findById(id)
     .then(product =>{

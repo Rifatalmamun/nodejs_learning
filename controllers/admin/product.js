@@ -66,7 +66,7 @@ const store = (req, res, next) => {
     }
 
     const product = new Product({
-      _id: new mongoose.Types.ObjectId('655ddb5b98466b6bc009e6f9'),
+      // _id: new mongoose.Types.ObjectId('655ddb5b98466b6bc009e6f9'),
       title: title,
       price: price,
       description: description,
@@ -107,7 +107,9 @@ const edit = (req, res, next) => {
         hasError: false
       });
     }).catch((err)=>{
-      console.log(err);
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
     })
 }
 
@@ -152,7 +154,9 @@ const update = (req, res, next) => {
         res.redirect('/admin/products');
       });
     }).catch((err)=>{
-      console.log(err);
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
     });
 
     //NOTE - ANOTHER WAY OF UPDATE
@@ -181,7 +185,9 @@ const destroy = (req, res, next) => {
   .then((result)=>{
     res.redirect('/admin/products');
   }).catch((err)=>{
-    console.log(err);
+    const error = new Error(err);
+    error.httpStatusCode = 500;
+    return next(error);
   });
 
   //NOTE - ANOTHER WAY OF DELETE

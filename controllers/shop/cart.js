@@ -17,7 +17,9 @@ const index = (req, res, next) => {
         products: products
       });
     }).catch(err =>{
-      console.log(err);
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
     });
 }
 
@@ -30,7 +32,9 @@ const store = (req, res, next) => {
     }).then(response =>{
       res.redirect('/cart');
     }).catch(err =>{
-      console.log(err);
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
     });
 }
 
@@ -41,7 +45,9 @@ const destroy = (req, res, next) => {
   .then((result)=>{
       res.redirect('/cart');
   }).catch(err =>{
-    console.log(err);
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
   });
 }
 

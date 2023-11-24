@@ -11,8 +11,11 @@ const index = (req, res, next) => {
       pageTitle: 'Shop | products',
       path: '/products'
     });
-  }).catch((err)=>{
-    console.log(err);
+  })
+  .catch(err => {
+    const error = new Error(err);
+    error.httpStatusCode = 500;
+    return next(error);
   });
 }
 
@@ -27,8 +30,10 @@ const show = (req, res, next) => {
       path: '/shop/product/show'
     });
   })
-  .catch((err)=>{
-    console.log(err);
+  .catch(err => {
+    const error = new Error(err);
+    error.httpStatusCode = 500;
+    return next(error);
   });
 }
 

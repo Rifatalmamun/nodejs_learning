@@ -76,7 +76,11 @@ const signup = (req, res, next) => {
         //   subject: 'Signup successful',
         //   html: '<h1>You successfully signed up!</h1>'
         // });
-      }).catch(err => console.log('err',err));
+      }).catch(err => {
+        const error = new Error(err);
+        error.httpStatusCode = 500;
+        return next(error);
+      });
 }
 
 const loginPage = (req, res, next) => {
@@ -159,7 +163,9 @@ const login = (req, res, next) => {
       });
   })
   .catch(err => {
-    console.log(err);
+    const error = new Error(err);
+    error.httpStatusCode = 500;
+    return next(error);
   });
 }
 
@@ -219,7 +225,9 @@ const resetPasswordEmail = (req, res, next) => {
         });
       })
       .catch(err =>{
-        console.log(err);
+        const error = new Error(err);
+        error.httpStatusCode = 500;
+        return next(error);
       })
   });
 }
@@ -252,7 +260,11 @@ const resetPasswordPage = (req, res, next) => {
         token: token
       });
     })
-    .catch(err => console.log(err));
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 }
 
 const resetPassword = (req, res, next) => {
@@ -287,7 +299,11 @@ const resetPassword = (req, res, next) => {
       .then(result => {
           res.redirect('/login');
       })
-      .catch(err => console.log(err));
+      .catch(err => {
+        const error = new Error(err);
+        error.httpStatusCode = 500;
+        return next(error);
+      });
 
   }else{
     req.flash('error', 'Confirm password not match');

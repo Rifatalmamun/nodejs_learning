@@ -10,7 +10,11 @@ const index = (req, res, next) => {
       orders: result
     });
   })
-  .catch(err => console.log(err));
+  .catch(err => {
+    const error = new Error(err);
+    error.httpStatusCode = 500;
+    return next(error);
+  });
 }
 
 const store = (req, res, next) => {
@@ -40,7 +44,11 @@ const store = (req, res, next) => {
       res.redirect('/orders')
     }).catch(err => console.log(err));
   })
-  .catch(err => console.log(err));
+  .catch(err => {
+    const error = new Error(err);
+    error.httpStatusCode = 500;
+    return next(error);
+  });
 }
 
 module.exports = {index, store}

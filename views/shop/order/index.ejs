@@ -12,6 +12,9 @@
                     <% orders.forEach(order => { %>
                         <li class="orders__item" style="border-bottom: 1px solid rgb(134, 134, 138)">
                             <h4>Order - # <%= order._id %></h4>
+                            <div>
+                                <a href="/download-invoice/<%= order._id %>">Download Invoice</a>
+                            </div>
                             <ul class="orders__products">
                                 <% order.products.forEach(product => { %>
                                     <li class="orders__products-item" style="margin: 10px;">

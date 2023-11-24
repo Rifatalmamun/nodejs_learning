@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Product = require('../../models/Product');
 const {validationResult} = require('express-validator');
+const {deleteFile} = require('../../utils/file');
 
 const index = (req, res, next) => {
   Product.find({userId: req.user._id}).then((result)=>{
@@ -43,10 +44,28 @@ const store = (req, res, next) => {
     return;
   }
     const title = req.body.title;
-    const imageUrl = req.body.imageUrl;
     const price = req.body.price;
     const description = req.body.description;
+    const image = req.file;
     const errors = validationResult(req);
+
+    console.log('image: ', image);
+
+    if(!image){
+      return res.status(422).render('admin/product/create', {
+        pageTitle: 'Admin | Create Product',
+        path: '/admin/create-product',
+        editing: false,
+        errorMessage: 'Attached file is not an image',
+        product: {
+          title: title,
+          price: price,
+          description: description
+        },
+        validationErrors: [],
+        hasError: true
+      });
+    }
 
     if(!errors.isEmpty()){
       return res.status(422).render('admin/product/create', {
@@ -57,16 +76,17 @@ const store = (req, res, next) => {
         product: {
           title: title,
           price: price,
-          imageUrl: imageUrl,
+          
           description: description
         },
         validationErrors: errors.array(),
         hasError: true
-      })
+      });
     }
 
+    const imageUrl = image.path;
+
     const product = new Product({
-      // _id: new mongoose.Types.ObjectId('655ddb5b98466b6bc009e6f9'),
       title: title,
       price: price,
       description: description,
@@ -116,11 +136,11 @@ const edit = (req, res, next) => {
 const update = (req, res, next) => {
   const id = req.body.productId;
   const title = req.body.title;
-  const imageUrl = req.body.imageUrl;
+  const image = req.file;
   const price = req.body.price ? Number(req.body.price) : undefined;
   const description = req.body.description;
-
   const errors = validationResult(req);
+
   if(!errors.isEmpty()){
     return res.status(422).render('admin/product/create', {
       pageTitle: 'Admin | Edit Product',
@@ -130,7 +150,6 @@ const update = (req, res, next) => {
       product: {
         title: title,
         price: price,
-        imageUrl: imageUrl,
         description: description,
         _id: id
       },
@@ -147,7 +166,10 @@ const update = (req, res, next) => {
       product.title = title;
       product.price = price;
       product.description = description;
-      product.imageUrl = imageUrl;
+      if(image){
+        deleteFile(product.imageUrl);
+        product.imageUrl = image.path;
+      }
       
       return product.save()
       .then(result =>{
@@ -181,10 +203,17 @@ const update = (req, res, next) => {
 const destroy = (req, res, next) => {
   const id = req.body.productId;
 
-  Product.deleteOne({_id: id, userId: req.user._id})
-  .then((result)=>{
+  Product.findById(id)
+  .then(product => {
+    if(!product){
+      return next(new Error('product not found!'));
+    }
+    deleteFile(product.imageUrl);
+    return Product.deleteOne({_id: id, userId: req.user._id});
+  }).then((result)=>{
     res.redirect('/admin/products');
   }).catch((err)=>{
+    console.log(err)
     const error = new Error(err);
     error.httpStatusCode = 500;
     return next(error);
@@ -199,6 +228,5 @@ const destroy = (req, res, next) => {
   //   console.log(err);
   // });
 }
-
 
 module.exports = {index, create, store, edit, update, destroy};

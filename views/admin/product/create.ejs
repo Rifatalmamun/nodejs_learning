@@ -19,7 +19,7 @@
             </div>
         <% } %>
         
-        <form class="product-form" action="/admin/<% if(editing) { %>update-product<%} else {%>store-product<%} %>" method="POST" novalidate>
+        <form class="product-form" action="/admin/<% if(editing) { %>update-product<%} else {%>store-product<%} %>" method="POST" novalidate enctype="multipart/form-data">
             <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
             <% if(editing) { %>
                 <input type="hidden" name="productId" value="<%= product._id%>"/>
@@ -29,11 +29,11 @@
                 <input class="<%= validationErrors.find(e => e.path === 'title') ? 'invalid' : '' %>" type="text" name="title" value="<% if(editing || hasError) { %><%=product.title%><%} %>" id="title" required>
             </div>
         
-            <div class="form-control">
+            <!-- <div class="form-control">
                 <label for="imageUrl">Image</label>
                 <input class="<%= validationErrors.find(e => e.path === 'imageUrl') ? 'invalid' : '' %>" type="text" name="imageUrl" value="<% if(editing || hasError) {%><%=product.imageUrl%><%}%>" id="imageUrl" required>
-            </div>
-        
+            </div> -->
+
             <div class="form-control">
                 <label for="price">Price</label>
                 <input class="<%= validationErrors.find(e => e.path === 'price') ? 'invalid' : '' %>" type="text" name="price" value="<% if(editing || hasError) {%><%=product.price%><%}%>" id="price" required>
@@ -42,6 +42,11 @@
             <div class="form-control">
                 <label for="description">Description</label>
                 <input class="<%= validationErrors.find(e => e.path === 'description') ? 'invalid' : '' %>" type="text" name="description" value="<% if(editing || hasError) {%><%=product.description%><%} %>" id="description" required>
+            </div>
+
+            <div class="form-control">
+                <label for="image">Image</label>
+                <input id="image" type="file" name="image" required>
             </div>
         
             <button class="btn" type="submit">

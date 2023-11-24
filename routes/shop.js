@@ -22,4 +22,7 @@ router.post('/store-order',isAuth, orderController.store);
 
 // router.get('/checkout', checkoutController.index);
 
+router.get('/download-invoice/:orderId', isAuth, orderController.downloadInvoice);
+
+
 module.exports = {router};

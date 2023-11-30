@@ -3,7 +3,7 @@ const commonController = require('../controllers/shop/common');
 const productController = require('../controllers/shop/product');
 const cartController = require('../controllers/shop/cart');
 const orderController = require('../controllers/shop/order');
-// const checkoutController = require('../controllers/shop/checkout');
+const checkoutController = require('../controllers/shop/checkout');
 const isAuth = require('../middleware/isAuth');
 
 const router = express.Router();
@@ -19,10 +19,11 @@ router.post('/delete-cart',isAuth, cartController.destroy);
 
 router.get('/orders',isAuth, orderController.index);
 router.post('/store-order',isAuth, orderController.store);
-
-// router.get('/checkout', checkoutController.index);
-
 router.get('/download-invoice/:orderId', isAuth, orderController.downloadInvoice);
 
+
+router.get('/checkout', isAuth, checkoutController.getCheckout);
+router.get('/checkout/success', checkoutController.getCheckoutSuccess);
+router.get('/checkout/cancel', checkoutController.getCheckout);
 
 module.exports = {router};

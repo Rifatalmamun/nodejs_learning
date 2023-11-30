@@ -16,11 +16,7 @@ const index = (req, res, next) => {
 const create = (req, res, next) => {
   let message = req.flash('error');
 
-  if(message.length > 0){
-    message = message[0];
-  }else{
-    message = null
-  }
+  message = message?.length > 0 ? message[0] : null;
 
   res.render('admin/product/create', {
     pageTitle: 'Admin | Add Product',
@@ -201,7 +197,7 @@ const update = (req, res, next) => {
 }
 
 const destroy = (req, res, next) => {
-  const id = req.body.productId;
+  const id = req.params.id;
 
   Product.findById(id)
   .then(product => {
@@ -211,12 +207,13 @@ const destroy = (req, res, next) => {
     deleteFile(product.imageUrl);
     return Product.deleteOne({_id: id, userId: req.user._id});
   }).then((result)=>{
-    res.redirect('/admin/products');
+    res.status(200).json({
+      message: 'success'
+    });
   }).catch((err)=>{
-    console.log(err)
-    const error = new Error(err);
-    error.httpStatusCode = 500;
-    return next(error);
+    res.status(500).json({
+      message: 'failed'
+    })
   });
 
   //NOTE - ANOTHER WAY OF DELETE

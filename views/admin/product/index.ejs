@@ -29,12 +29,10 @@
                                 <div>
                                     <a href="/admin/edit-product/<%= product._id%>?edit=true" class="btn" style="text-decoration: none;padding: 4px;">Edit</a>
                                 </div>
-                                
-                                <form action="/admin/delete-product" method="POST" style="margin-top: -4px;">
-                                    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                                    <input type="hidden" name="productId" value="<%= product._id%>"/>
-                                    <button type="submit" class="btn" style="padding: 4px;">Delete</a>
-                                </form>
+                           
+                                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                                <input type="hidden" name="productId" value="<%= product._id%>"/>
+                                <button type="button" class="btn" style="padding: 4px;" onclick="deleteProduct(this)">Delete</a>
                             </div>
                         </article>
                     <% } %>
@@ -45,3 +43,4 @@
         </div>
     </main>
 <%- include('../../includes/end.ejs') %>
+<script src="/js/admin/product.js"></script>

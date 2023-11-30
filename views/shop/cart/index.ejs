@@ -1,5 +1,5 @@
 <%- include('../../includes/head.ejs') %>
-    <link rel="stylesheet" href="/css/product.css">
+    <link rel="stylesheet" href="/css/cart.css">
 </head>
 
 <body>
@@ -30,10 +30,7 @@
                 </ul>
 
                 <div>
-                    <form action="/store-order" method="post">
-                        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                        <button type="submit" class="btn">Place Order</button>
-                    </form>
+                    <a href="/checkout" class="btn" style="text-decoration: none;">Checkout</a>
                 </div>
             <% } else { %>
                 <h4>No products in cart!</h4>

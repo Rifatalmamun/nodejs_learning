@@ -1,6 +1,5 @@
 const Product = require("../../models/Product");
 
-
 const index = (req, res, next) => {
   req.user
   .populate('cart.items.productId')

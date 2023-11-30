@@ -10,6 +10,6 @@ router.get('/add-product',isAuth, productController.create);
 router.post('/store-product',productValidator.store,isAuth, productController.store);
 router.get('/edit-product/:productId',isAuth, productController.edit);
 router.post('/update-product',productValidator.update,isAuth, productController.update);
-router.post('/delete-product',isAuth, productController.destroy);
+router.delete('/delete/product/:id',isAuth, productController.destroy);
 
 module.exports = {router}

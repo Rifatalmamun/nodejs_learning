@@ -5,6 +5,7 @@ const path = require('path');
 
 const feedRoutes = require('./routes/feed');
 const commonRoutes = require('./routes/common');
+const authRoutes = require('./routes/auth');
 const multer = require('multer');
 
 const app = express();
@@ -18,7 +19,7 @@ const fileStorage = multer.diskStorage({
     }
 });
 const fileFilter = (req, file, cb) => {
-    if(file.mimetype === 'image/png' || file.mimetype === 'image/jpg' || file.mimetype === 'image/jpeg'){
+    if(file.mimetype === 'image/png' || file.mimetype === 'image/jpg' || file.mimetype === 'image/jpeg' || file.mimetype === 'image/webp'){
         cb(null, true);
     }else{
         cb(null, false);
@@ -39,13 +40,16 @@ app.use((req, res, next) => {
     next();
 });
 app.use(commonRoutes.router);
-app.use('/feed', feedRoutes);
+app.use('/auth', authRoutes.router);
+app.use('/feed', feedRoutes.router);
 
 app.use((error, req, res, next) => {
     console.log(error);
     const status = error.statusCode || 500;
     const message = error.message;
-    res.status(status).json({status: status, message: message});
+    const data = error.data;
+
+    res.status(status).json({status: status, message: message, data: data});
 });
 
 mongoose.connect('mongodb+srv://rifat:Rifat150107@cluster0.yi05v88.mongodb.net/blog')

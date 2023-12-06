@@ -1,7 +1,13 @@
 const fs = require('fs');
 const path = require('path');
 const Feed = require('../models/Feed');
+const User = require('../models/User');
 const {validationResult} = require('express-validator');
+
+const clearImage = (filePath) => {
+  filePath = path.join(__dirname, '..', filePath);
+  fs.unlink(filePath, error => {console.log(error)})
+}
 
 exports.getPosts = (req, res, next) => {
   const currentPage = req.query.page || 1;
@@ -43,23 +49,31 @@ exports.createPost = (req, res, next) => {
     throw error;
   }
 
-  const title = req.body.title;
-  const content = req.body.content;
-  const creator = req.body.creator;
+  const {title, content} = req.body;
   const imageUrl = req.file.path;
 
   const feed = new Feed({
     title: title,
     imageUrl: imageUrl,
     content: content,
-    creator: creator
+    creator: req.userId
   });
+  let creator;
 
   feed.save()
     .then(result => {
+      return User.findById(req.userId)
+    })
+    .then(user => {
+      creator = user;
+      user.feeds.push(feed);
+      return user.save();
+    })
+    .then(result => {
       res.status(201).json({
         message: 'feed created successfully!',
-        post: result
+        post: feed,
+        creator: {_id: creator._id, name: creator.name}
       });
     })
     .catch(error => {
@@ -80,8 +94,7 @@ exports.updatePost = (req, res, next) => {
     throw error;
   }
 
-  const title = req.body.title;
-  const content = req.body.content;
+  const {title, content} = req.body;
   let imageUrl = req.body.image;
 
   if(req.file){
@@ -99,6 +112,12 @@ exports.updatePost = (req, res, next) => {
     if(!post){
       const error = new Error('could not find post');
       error.statusCode = 404;
+      throw error;
+    }
+
+    if(post.creator.toString() !== req.userId){
+      const error = new Error('not authorized');
+      error.statusCode = 403;
       throw error;
     }
 
@@ -159,13 +178,26 @@ exports.deletePost = (req, res, next) => {
         error.statusCode = 404;
         throw error;
       }
+      if(post.creator.toString() !== req.userId){
+        const error = new Error('not authorized');
+        error.statusCode = 401;
+        throw error;
+      }
+
       if(post.imageUrl){
         clearImage(post.imageUrl);
       }
       return Feed.findByIdAndDelete(id);
     })
     .then(result => {
-        res.status(200).json({message: 'post deleted successfully'});
+      return User.findById(req.userId);
+    })
+    .then(user => {
+        user.feeds.pull(id);
+        return user.save();
+    })
+    .then(result => {
+      res.status(200).json({message: 'post deleted successfully'});
     })
     .catch(error => {
       if(!error.statusCode){
@@ -173,9 +205,4 @@ exports.deletePost = (req, res, next) => {
       }
       next(error);
     })
-}
-
-const clearImage = (filePath) => {
-  filePath = path.join(__dirname, '..', filePath);
-  fs.unlink(filePath, error => {console.log(error)})
 }

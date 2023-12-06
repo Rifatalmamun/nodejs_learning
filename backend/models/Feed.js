@@ -14,7 +14,8 @@ const feedSchema = new mongoose.Schema({
         required: true
     },
     creator: {
-        type: Object, 
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
         required: true
     },
 }, { timestamps: true});

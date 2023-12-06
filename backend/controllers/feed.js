@@ -9,32 +9,27 @@ const clearImage = (filePath) => {
   fs.unlink(filePath, error => {console.log(error)})
 }
 
-exports.getPosts = (req, res, next) => {
+exports.getPosts = async(req, res, next) => {
   const currentPage = req.query.page || 1;
   const perPage = 3;
-  let totalItems;
 
-  Feed.find()
-    .countDocuments()
-    .then(count => {
-      totalItems = count;
-      return Feed.find().skip((currentPage-1) * perPage).limit(perPage);
+  try {
+    const totalItems = await Feed.find().countDocuments();
+    const posts = await Feed.find().skip((currentPage - 1) * perPage).limit(perPage);
+
+    res.status(200).json({
+      posts: posts,
+      totalItems: totalItems
     })
-    .then(result => {
-      res.status(200).json({
-        posts: result,
-        totalItems: totalItems
-      });
-    })
-    .catch(error => {
-      if(!error.statusCode){
-        error.statusCode = 500;
-      }
-      next(error);
-    });
+  } catch (error) {
+    if(!error.statusCode){
+      error.statusCode = 500;
+    }
+    next(error);
+  }
 };
 
-exports.createPost = (req, res, next) => {
+exports.createPost = async(req, res, next) => {
   const errors = validationResult(req);
 
   if(!errors.isEmpty()){
@@ -58,33 +53,28 @@ exports.createPost = (req, res, next) => {
     content: content,
     creator: req.userId
   });
-  let creator;
 
-  feed.save()
-    .then(result => {
-      return User.findById(req.userId)
-    })
-    .then(user => {
-      creator = user;
-      user.feeds.push(feed);
-      return user.save();
-    })
-    .then(result => {
-      res.status(201).json({
-        message: 'feed created successfully!',
-        post: feed,
-        creator: {_id: creator._id, name: creator.name}
-      });
-    })
-    .catch(error => {
-      if(!error.statusCode){
-        error.statusCode = 500;
-      }
-      next(error);
-    });
+  try {
+   await feed.save();
+   const user = await User.findById(req.userId);
+   user.feeds.push(feed);
+   await user.save();
+
+   res.status(201).json({
+    message: 'feed created successfully!',
+    post: feed,
+    creator: {_id: user._id, name: user.name}
+  });
+
+  } catch (error) {
+    if(!error.statusCode){
+      error.statusCode = 500;
+    }
+    next(error);
+  }
 };
 
-exports.updatePost = (req, res, next) => {
+exports.updatePost = async(req, res, next) => {
   const errors = validationResult(req);
   const id = req.params.id;
 
@@ -107,17 +97,17 @@ exports.updatePost = (req, res, next) => {
     throw error;
   }
 
-  Feed.findById(id)
-  .then(post => {
+  try {
+    const post = await Feed.findById(id);
+
     if(!post){
       const error = new Error('could not find post');
       error.statusCode = 404;
       throw error;
     }
-
     if(post.creator.toString() !== req.userId){
       const error = new Error('not authorized');
-      error.statusCode = 403;
+      error.statusCode = 401;
       throw error;
     }
 
@@ -128,21 +118,19 @@ exports.updatePost = (req, res, next) => {
     post.title = title;
     post.content = content;
     post.imageUrl = imageUrl;
-    return post.save();
-  })
-  .then(result => {
-    res.status(200).json({message: 'post updated successfully', post: result});
-  })
-  .catch(error => {
+
+    await post.save();
+    res.status(200).json({message: 'post updated successfully', post: post});
+
+  } catch (error) {
     if(!error.statusCode){
       error.statusCode = 500;
     }
     next(error);
-  })
-
+  }
 }
 
-exports.getPost = (req, res, next) => {
+exports.getPost = async(req, res, next) => {
   const id = req.params.id;
 
   if(!id){
@@ -151,58 +139,55 @@ exports.getPost = (req, res, next) => {
     throw error;
   }
 
-  Feed.findById(id)
-    .then(result => {
-      if(!result){
-        const error = new Error('could not find post');
-        error.statusCode = 404;
-        throw error;
-      }
-      res.status(200).json({message: 'post fetched successfully', post: result})
-    })
-    .catch(error => {
-      if(!error.statusCode){
-        error.statusCode = 500;
-      }
-      next(error);
-    });
+  try {
+    const feed = await Feed.findById(id);
+
+    if(!feed){
+      const error = new Error('could not find post');
+      error.statusCode = 404;
+      throw error;
+    }
+
+    res.status(200).json({message: 'post fetched successfully', post: feed});
+
+  } catch (error) {
+    if(!error.statusCode){
+      error.statusCode = 500;
+    }
+    next(error);
+  }
 }
 
-exports.deletePost = (req, res, next) => {
+exports.deletePost = async(req, res, next) => {
   const id = req.params.id;
 
-  Feed.findById(id)
-    .then(post => {
-      if(!post){
-        const error = new Error('could not find post');
-        error.statusCode = 404;
-        throw error;
-      }
-      if(post.creator.toString() !== req.userId){
-        const error = new Error('not authorized');
-        error.statusCode = 401;
-        throw error;
-      }
+  try {
+    const post = await Feed.findById(id);
 
-      if(post.imageUrl){
-        clearImage(post.imageUrl);
-      }
-      return Feed.findByIdAndDelete(id);
-    })
-    .then(result => {
-      return User.findById(req.userId);
-    })
-    .then(user => {
-        user.feeds.pull(id);
-        return user.save();
-    })
-    .then(result => {
-      res.status(200).json({message: 'post deleted successfully'});
-    })
-    .catch(error => {
-      if(!error.statusCode){
-        error.statusCode = 500;
-      }
-      next(error);
-    })
+    if(!post){
+      const error = new Error('could not find post');
+      error.statusCode = 404;
+      throw error;
+    }
+    if(post.creator.toString() !== req.userId){
+      const error = new Error('not authorized');
+      error.statusCode = 401;
+      throw error;
+    }
+
+    if(post.imageUrl){
+      clearImage(post.imageUrl);
+    }
+    await Feed.findByIdAndDelete(id);
+    const user = await User.findById(req.userId);
+    user.feeds.pull(id);
+    await user.save();
+
+    res.status(200).json({message: 'post deleted successfully'});
+  } catch (error) {
+    if(!error.statusCode){
+      error.statusCode = 500;
+    }
+    next(error);
+  }
 }

@@ -2,11 +2,11 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const path = require('path');
-
+const multer = require('multer');
 const feedRoutes = require('./routes/feed');
 const commonRoutes = require('./routes/common');
 const authRoutes = require('./routes/auth');
-const multer = require('multer');
+const commonErrorHandle = require('./utils/commonErrorHandle');
 
 const app = express();
 
@@ -43,14 +43,7 @@ app.use(commonRoutes.router);
 app.use('/auth', authRoutes.router);
 app.use('/feed', feedRoutes.router);
 
-app.use((error, req, res, next) => {
-    console.log(error);
-    const status = error.statusCode || 500;
-    const message = error.message;
-    const data = error.data;
-
-    res.status(status).json({status: status, message: message, data: data});
-});
+app.use(commonErrorHandle);
 
 mongoose.connect('mongodb+srv://rifat:Rifat150107@cluster0.yi05v88.mongodb.net/blog')
     .then(result => {

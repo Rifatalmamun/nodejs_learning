@@ -3,6 +3,7 @@ const path = require('path');
 const Feed = require('../models/Feed');
 const User = require('../models/User');
 const {validationResult} = require('express-validator');
+const io = require('../socket');
 
 const clearImage = (filePath) => {
   filePath = path.join(__dirname, '..', filePath);
@@ -15,7 +16,9 @@ exports.getPosts = async(req, res, next) => {
 
   try {
     const totalItems = await Feed.find().countDocuments();
-    const posts = await Feed.find().skip((currentPage - 1) * perPage).limit(perPage);
+    const posts = await Feed.find().populate('creator').skip((currentPage - 1) * perPage).limit(perPage);
+
+    // fetch posts with user details
 
     res.status(200).json({
       posts: posts,
@@ -55,12 +58,16 @@ exports.createPost = async(req, res, next) => {
   });
 
   try {
-   await feed.save();
-   const user = await User.findById(req.userId);
-   user.feeds.push(feed);
-   await user.save();
+    await feed.save();
+    const user = await User.findById(req.userId);
+    user.feeds.push(feed);
+    await user.save();
+    
+    // notify others via socket.io that a new post created
+    io.getIO().emit('post', { action: 'create', post: {...feed._doc, creator: {_id: req.userId, name: user.name}} });
+    // end
 
-   res.status(201).json({
+    res.status(201).json({
     message: 'feed created successfully!',
     post: feed,
     creator: {_id: user._id, name: user.name}
